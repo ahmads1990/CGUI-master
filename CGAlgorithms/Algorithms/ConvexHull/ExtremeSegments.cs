@@ -11,12 +11,13 @@ namespace CGAlgorithms.Algorithms.ConvexHull
     {
         public override void Run(List<Point> points, List<Line> lines, List<Polygon> polygons, ref List<Point> outPoints, ref List<Line> outLines, ref List<Polygon> outPolygons)
         {
+            //1,2,3 special case
             if (points.Count <= 3)
             {
                 outPoints = points;
                 return;
             }
-            //1,2,3 special case
+            //store points count and hull turn type
             int n = points.Count;
             Enums.TurnType? convexHullTurn = null;
             //first pick point i
@@ -33,12 +34,16 @@ namespace CGAlgorithms.Algorithms.ConvexHull
                     //test with other points k
                     for (int k = 0; k < n; k++)
                     {
+                        // k != i or j
                         if (k == i || k == j) continue;
                         Enums.TurnType testResult = HelperMethods.CheckTurn(lineIJ, points[k]);
+                        //if its first point to test just store turn type
                         if (lineTurn == null) lineTurn = testResult;
+                        //else check new turn with line ij direction and hull turn type
                         if(testResult != lineTurn || 
                             (convexHullTurn!=null&&convexHullTurn!=lineTurn))
                         {
+                            //isnt the segment needed just break
                             lineTurn = null;
                             break;
                         }
