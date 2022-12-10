@@ -17,9 +17,8 @@ namespace CGAlgorithms.Algorithms.ConvexHull
                 outPoints = points;
                 return;
             }
-            //store points count and hull turn type
+            //store points count
             int n = points.Count;
-            Enums.TurnType? convexHullTurn = null;
             //first pick point i
             for (int i = 0; i < n; i++)
             {
@@ -28,7 +27,9 @@ namespace CGAlgorithms.Algorithms.ConvexHull
                 {
                     //i != j
                     if (i == j) continue;
-                    //line ij
+                    // point i isnt equal point j
+                    if (points[i].Equals(points[j])) continue;
+                    //line ij and its turn direction start null
                     Line lineIJ = new Line(points[i], points[j]);
                     Enums.TurnType? lineTurn = null;
                     //test with other points k
@@ -36,12 +37,29 @@ namespace CGAlgorithms.Algorithms.ConvexHull
                     {
                         // k != i or j
                         if (k == i || k == j) continue;
+                        //test lineIJ direction with point k
                         Enums.TurnType testResult = HelperMethods.CheckTurn(lineIJ, points[k]);
                         //if its first point to test just store turn type
-                        if (lineTurn == null) lineTurn = testResult;
-                        //else check new turn with line ij direction and hull turn type
-                        if(testResult != lineTurn || 
-                            (convexHullTurn!=null&&convexHullTurn!=lineTurn))
+                        if (testResult == Enums.TurnType.Colinear)
+                        {
+                            //if k on same lineIJ
+                            double distanceIJ = getDistance(points[i], points[j]);
+                            double distanceIk = getDistance(points[i], points[k]);
+                            double distanceJk = getDistance(points[j], points[k]);
+                            //check point k inside line ij then this point passes the test
+                            if (distanceIk + distanceJk <= distanceIJ)
+                            {
+                                continue;
+                            }
+                            //point outside lineIJ point will not pass the test and break
+                        }
+                        else
+                        {
+                            //if its first point to test with store its result direction if not colinear
+                            if (lineTurn == null) lineTurn = testResult;
+                        }
+                        //check new turn with lineIJ direction
+                        if (testResult != lineTurn)
                         {
                             //isnt the segment needed just break
                             lineTurn = null;
@@ -51,21 +69,27 @@ namespace CGAlgorithms.Algorithms.ConvexHull
                     //survived all tests
                     if (lineTurn != null)
                     {
-                        if (convexHullTurn == null) { convexHullTurn = lineTurn; }
-                        //save point j (line i to j) set start i to be end j and j = 0
-                        if (outPoints.Count >0 && outPoints[0].Equals(points[j])) { return; }
+                        //save point i,j
+                        outPoints.Add(points[i]);
                         outPoints.Add(points[j]);
-                        i = j;
-                        j = -1;
-                    }
-                    if (i >= 5)
-                    {
-                        Console.WriteLine();
+                        break;
                     }
                 }
             }
-        }
+            //remove duplicate points from the list
+            outPoints = outPoints.Distinct().ToList();
+            //Sometimes list has 2 duplicate and the end of it remove one
+            if (outPoints[outPoints.Count - 1].Equals(outPoints[outPoints.Count - 2]))
+            {
 
+                outPoints.Remove(outPoints.Last());
+            }
+        }
+        //get distance between 2 points
+        private double getDistance(Point i, Point j)
+        {
+            return Math.Sqrt(Math.Pow(i.Y - j.Y, 2) + Math.Pow(i.X - j.X, 2));
+        }
         public override string ToString()
         {
             return "Convex Hull - Extreme Segments";
