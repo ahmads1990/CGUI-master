@@ -35,7 +35,7 @@ namespace CGAlgorithms.Algorithms.ConvexHull
             p.X = (p.X + points[2].X) / 2;
             p.Y = (p.Y + points[2].Y) / 2;
 
-            double k = 1000;
+            double k = 100.0;
             // The new point
             Point newPoint = new Point(p.X + k, p.Y);
             // The line between the middle point and the new point
@@ -57,13 +57,13 @@ namespace CGAlgorithms.Algorithms.ConvexHull
                 
                 // initialize the next of the point
                 Tuple<double, int> next = preAndNext.Key;
-                next = preAndNext.Key;
                 if (next == null)
                 {
                     //if it's null so take the first one 
                     next = orderedPointsByAngle.GetFirst();
                 }
 
+                // initialize the pre of the point
                 Tuple<double, int> pre = preAndNext.Value;
                 if (pre == null)
                 {
